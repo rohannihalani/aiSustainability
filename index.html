@@ -1,0 +1,1819 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How Much Energy? — AI &amp; Sustainability</title>
+    <meta
+      name="description"
+      content="An interactive look at the hidden cost of AI — for curious minds."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ── RESET ── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      img,
+      svg {
+        display: block;
+      }
+
+      /* ── TOKENS ── */
+      :root {
+        --green: #2d5016;
+        --green-mid: #3d6b1f;
+        --sage: #8b9e3a;
+        --sage-light: #a9be4d;
+        --gold: #d4a843;
+        --gold-light: #e8c06a;
+        --bg: #f5f2eb;
+        --bg-warm: #ede9df;
+        --card: #fdfaf4;
+        --text: #2c2c2c;
+        --muted: #6b6b5b;
+        --light: #9b9b8b;
+        --white: #ffffff;
+        --shadow: 0 4px 28px rgba(45, 80, 22, 0.08);
+        --shadow-lg: 0 10px 48px rgba(45, 80, 22, 0.14);
+        --r: 16px;
+        --r-sm: 10px;
+        --r-lg: 24px;
+        --ease: cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: "DM Serif Display", Georgia, serif;
+        line-height: 1.2;
+      }
+
+      /* ── SCROLL ANIMATIONS ── */
+      .fade {
+        opacity: 0;
+        transform: translateY(28px);
+        transition:
+          opacity 0.7s var(--ease),
+          transform 0.7s var(--ease);
+      }
+      .fade.d1 {
+        transition-delay: 0.1s;
+      }
+      .fade.d2 {
+        transition-delay: 0.2s;
+      }
+      .fade.d3 {
+        transition-delay: 0.3s;
+      }
+      .fade.d4 {
+        transition-delay: 0.4s;
+      }
+      .fade.visible {
+        opacity: 1;
+        transform: none;
+      }
+
+      /* ── CONTAINER ── */
+      .wrap {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 0 22px;
+      }
+
+      /* ── PILL LABEL ── */
+      .pill {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--sage);
+        background: rgba(139, 158, 58, 0.12);
+        padding: 6px 14px;
+        border-radius: 100px;
+        margin-bottom: 16px;
+      }
+      .pill-gold {
+        color: var(--gold);
+        background: rgba(212, 168, 67, 0.18);
+      }
+
+      /* ── BUTTONS ── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 600;
+        padding: 14px 28px;
+        border-radius: 100px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        min-height: 52px;
+        min-width: 52px;
+        transition: all 0.25s var(--ease);
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+      }
+      .btn:active {
+        transform: scale(0.96);
+      }
+      .btn-green {
+        background: var(--green);
+        color: var(--white);
+        box-shadow: 0 4px 18px rgba(45, 80, 22, 0.3);
+      }
+      .btn-green:hover {
+        background: var(--green-mid);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 26px rgba(45, 80, 22, 0.38);
+      }
+      .btn-outline {
+        background: transparent;
+        color: var(--green);
+        border: 2px solid var(--green);
+      }
+      .btn-outline:hover {
+        background: rgba(45, 80, 22, 0.06);
+      }
+      .btn-gold {
+        background: var(--gold);
+        color: var(--text);
+        box-shadow: 0 4px 16px rgba(212, 168, 67, 0.3);
+      }
+      .btn-gold:hover {
+        background: var(--gold-light);
+        transform: translateY(-1px);
+      }
+      .btn-white {
+        background: var(--white);
+        color: var(--green);
+      }
+      .btn-white:hover {
+        background: rgba(255, 255, 255, 0.92);
+      }
+      .btn-ghost-white {
+        background: transparent;
+        color: var(--white);
+        border: 2px solid rgba(255, 255, 255, 0.35);
+      }
+      .btn-ghost-white:hover {
+        border-color: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.07);
+      }
+      .btn-full {
+        width: 100%;
+      }
+
+      /* ── TOAST ── */
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: var(--text);
+        color: var(--white);
+        padding: 12px 26px;
+        border-radius: 100px;
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        z-index: 9999;
+        transition: transform 0.3s var(--ease);
+        pointer-events: none;
+      }
+      .toast.show {
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* ══════════════════════════════════════════
+       SECTION 1 — HERO
+    ══════════════════════════════════════════ */
+      #hero {
+        min-height: 100svh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 80px 24px 72px;
+        background: linear-gradient(
+          175deg,
+          #deebbf 0%,
+          #e8f0d2 40%,
+          var(--bg) 100%
+        );
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Organic background blobs */
+      #hero::before,
+      #hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+      }
+      #hero::before {
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(
+          circle,
+          rgba(139, 158, 58, 0.12) 0%,
+          transparent 70%
+        );
+        top: -100px;
+        right: -150px;
+      }
+      #hero::after {
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(
+          circle,
+          rgba(212, 168, 67, 0.1) 0%,
+          transparent 70%
+        );
+        bottom: -80px;
+        left: -100px;
+      }
+
+      .hero-orb {
+        position: relative;
+        width: 180px;
+        height: 180px;
+        margin-bottom: 36px;
+      }
+      .ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 1.5px solid rgba(139, 158, 58, 0.7);
+        animation: ripple 3.6s ease-out infinite;
+      }
+      .ring:nth-child(2) {
+        animation-delay: 1.2s;
+      }
+      .ring:nth-child(3) {
+        animation-delay: 2.4s;
+      }
+      @keyframes ripple {
+        0% {
+          transform: scale(0.3);
+          opacity: 0.9;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 0;
+        }
+      }
+      .orb-core {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 72px;
+        height: 72px;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        background: radial-gradient(
+          circle at 35% 35%,
+          var(--sage-light),
+          var(--sage) 55%,
+          var(--green)
+        );
+        box-shadow: 0 0 48px rgba(139, 158, 58, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: breathe 4s ease-in-out infinite;
+      }
+      @keyframes breathe {
+        0%,
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+          box-shadow: 0 0 40px rgba(139, 158, 58, 0.4);
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.1);
+          box-shadow: 0 0 64px rgba(139, 158, 58, 0.6);
+        }
+      }
+      .orb-core svg {
+        width: 32px;
+        height: 32px;
+      }
+
+      .hero-title {
+        font-size: clamp(42px, 11vw, 78px);
+        color: var(--green);
+        letter-spacing: -0.025em;
+        margin-bottom: 14px;
+        animation: fadeUp 0.9s var(--ease) both;
+      }
+      .hero-sub {
+        font-size: clamp(16px, 4.5vw, 21px);
+        color: var(--muted);
+        font-weight: 400;
+        max-width: 380px;
+        margin: 0 auto 52px;
+        line-height: 1.5;
+        animation: fadeUp 0.9s var(--ease) 0.15s both;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      .scroll-hint {
+        position: absolute;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        color: var(--light);
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .scroll-arrow {
+        animation: bob 2s ease-in-out infinite;
+        font-size: 18px;
+        color: var(--sage);
+      }
+      @keyframes bob {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(7px);
+        }
+      }
+
+      /* ══════════════════════════════════════════
+       SECTION 2 — MATH CHALLENGE
+    ══════════════════════════════════════════ */
+      #math {
+        padding: 88px 0;
+        background: var(--bg);
+      }
+
+      .game-box {
+        background: var(--card);
+        border-radius: var(--r-lg);
+        padding: 38px 28px;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+      }
+      @media (min-width: 560px) {
+        .game-box {
+          padding: 48px 42px;
+        }
+      }
+
+      .game-state {
+        display: none;
+      }
+      .game-state.on {
+        display: block;
+      }
+
+      /* Intro */
+      .intro-title {
+        font-size: clamp(26px, 6vw, 40px);
+        color: var(--green);
+        margin-bottom: 10px;
+      }
+      .intro-desc {
+        color: var(--muted);
+        font-size: 15px;
+        margin-bottom: 28px;
+        line-height: 1.6;
+      }
+      .q-dots {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 32px;
+      }
+      .q-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: rgba(139, 158, 58, 0.25);
+      }
+
+      /* Question */
+      .q-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+      .q-num {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 500;
+      }
+      .q-timer {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--sage);
+        font-variant-numeric: tabular-nums;
+        background: rgba(139, 158, 58, 0.1);
+        padding: 5px 13px;
+        border-radius: 100px;
+      }
+      .progress-track {
+        height: 4px;
+        background: rgba(139, 158, 58, 0.15);
+        border-radius: 100px;
+        overflow: hidden;
+        margin-bottom: 32px;
+      }
+      .progress-fill {
+        height: 100%;
+        background: var(--sage);
+        border-radius: 100px;
+        transition: width 0.4s var(--ease);
+        width: 0%;
+      }
+      .q-equation {
+        font-family: "DM Serif Display", serif;
+        font-size: clamp(52px, 15vw, 88px);
+        color: var(--green);
+        text-align: center;
+        margin: 28px 0 32px;
+        letter-spacing: -0.02em;
+      }
+      .q-input {
+        width: 100%;
+        font-family: inherit;
+        font-size: 26px;
+        font-weight: 600;
+        text-align: center;
+        padding: 15px;
+        border: 2px solid rgba(139, 158, 58, 0.25);
+        border-radius: var(--r-sm);
+        background: var(--bg);
+        color: var(--text);
+        outline: none;
+        min-height: 64px;
+        transition: border-color 0.2s;
+        -webkit-appearance: none;
+      }
+      .q-input:focus {
+        border-color: var(--sage);
+      }
+      .q-input.ok {
+        border-color: var(--sage);
+        background: rgba(139, 158, 58, 0.07);
+        color: var(--green);
+      }
+      .q-input.err {
+        border-color: #c0392b;
+        background: rgba(192, 57, 43, 0.05);
+      }
+      .q-hint {
+        font-size: 12px;
+        color: var(--light);
+        text-align: center;
+        margin-top: 10px;
+        min-height: 18px;
+      }
+
+      /* Results */
+      .res-header {
+        text-align: center;
+        margin-bottom: 28px;
+      }
+      .res-time {
+        font-family: "DM Serif Display", serif;
+        font-size: clamp(52px, 14vw, 76px);
+        color: var(--green);
+        line-height: 1;
+        margin: 10px 0 4px;
+      }
+      .res-time-label {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .res-score {
+        font-size: 15px;
+        color: var(--muted);
+        margin-top: 10px;
+      }
+
+      .energy-viz {
+        background: var(--bg);
+        border-radius: var(--r);
+        padding: 22px 20px;
+        margin: 24px 0;
+      }
+      .viz-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--light);
+        margin-bottom: 20px;
+      }
+      .bar-row {
+        margin-bottom: 18px;
+      }
+      .bar-row:last-child {
+        margin-bottom: 0;
+      }
+      .bar-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 7px;
+      }
+      .bar-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text);
+      }
+      .bar-value {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .bar-track {
+        height: 13px;
+        background: rgba(0, 0, 0, 0.06);
+        border-radius: 100px;
+        overflow: hidden;
+      }
+      .bar-fill {
+        height: 100%;
+        border-radius: 100px;
+        width: 0;
+        transition: width 1.3s var(--ease);
+      }
+      .bar-fill.brain {
+        background: linear-gradient(90deg, var(--sage), var(--sage-light));
+      }
+      .bar-fill.ai {
+        background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      }
+
+      .insight-block {
+        background: rgba(45, 80, 22, 0.06);
+        border-left: 3px solid var(--green);
+        border-radius: 0 var(--r-sm) var(--r-sm) 0;
+        padding: 16px 20px;
+        font-size: 14px;
+        color: var(--text);
+        line-height: 1.65;
+      }
+      .insight-block strong {
+        color: var(--green);
+      }
+
+      .res-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 24px;
+      }
+      @media (min-width: 500px) {
+        .res-actions {
+          flex-direction: row;
+        }
+      }
+
+      .share-preview {
+        margin-top: 14px;
+        padding: 14px 18px;
+        background: var(--bg-warm);
+        border: 1.5px dashed rgba(139, 158, 58, 0.4);
+        border-radius: var(--r-sm);
+        font-size: 13px;
+        color: var(--muted);
+        font-style: italic;
+        text-align: center;
+        line-height: 1.5;
+      }
+
+      /* ══════════════════════════════════════════
+       SECTION 3 — WHY THIS MATTERS
+    ══════════════════════════════════════════ */
+      #why {
+        padding: 88px 0;
+        background: linear-gradient(180deg, var(--bg) 0%, var(--bg-warm) 100%);
+      }
+      #why h2 {
+        font-size: clamp(30px, 7.5vw, 52px);
+        color: var(--green);
+        margin-bottom: 12px;
+      }
+      .sec-intro {
+        font-size: 16px;
+        color: var(--muted);
+        margin-bottom: 44px;
+        line-height: 1.6;
+      }
+
+      .facts {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+      .fact-card {
+        background: var(--card);
+        border-radius: var(--r);
+        padding: 28px 24px;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        display: flex;
+        gap: 18px;
+        align-items: flex-start;
+        transition:
+          box-shadow 0.25s var(--ease),
+          transform 0.25s var(--ease);
+      }
+      .fact-card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+      }
+      .fact-icon-wrap {
+        width: 50px;
+        height: 50px;
+        flex-shrink: 0;
+        border-radius: 14px;
+        background: var(--bg-warm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .fact-icon-wrap svg {
+        width: 26px;
+        height: 26px;
+      }
+      .fact-num {
+        font-family: "DM Serif Display", serif;
+        font-size: clamp(34px, 8vw, 52px);
+        color: var(--green);
+        line-height: 1;
+        margin-bottom: 8px;
+      }
+      .fact-head {
+        font-family: "DM Serif Display", serif;
+        font-size: 20px;
+        color: var(--green);
+        margin-bottom: 8px;
+        line-height: 1.3;
+      }
+      .fact-body {
+        font-size: 14px;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+      .fact-body strong {
+        color: var(--text);
+      }
+
+      /* ══════════════════════════════════════════
+       SECTION 4 — AI OR NOT QUIZ
+    ══════════════════════════════════════════ */
+      #quiz {
+        padding: 88px 0;
+        background: var(--bg-warm);
+      }
+      #quiz h2 {
+        font-size: clamp(30px, 7.5vw, 52px);
+        color: var(--green);
+        margin-bottom: 12px;
+      }
+
+      .quiz-box {
+        background: var(--card);
+        border-radius: var(--r-lg);
+        padding: 32px 26px;
+        box-shadow: var(--shadow);
+      }
+      @media (min-width: 560px) {
+        .quiz-box {
+          padding: 40px 36px;
+        }
+      }
+
+      .quiz-dots {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 26px;
+      }
+      .qd {
+        flex: 1;
+        height: 5px;
+        border-radius: 100px;
+        background: rgba(139, 158, 58, 0.15);
+        transition: background 0.35s;
+      }
+      .qd.done {
+        background: var(--sage);
+      }
+      .qd.current {
+        background: var(--gold);
+      }
+
+      .q-num-label {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--light);
+        margin-bottom: 14px;
+      }
+      .q-action {
+        font-family: "DM Serif Display", serif;
+        font-size: clamp(20px, 5.5vw, 30px);
+        color: var(--text);
+        margin-bottom: 10px;
+        line-height: 1.3;
+      }
+      .q-context {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 28px;
+        line-height: 1.5;
+      }
+
+      .quiz-btns {
+        display: flex;
+        gap: 10px;
+      }
+      .btn-ai {
+        flex: 1;
+        font-size: 14px;
+        padding: 14px 12px;
+        border-radius: var(--r-sm);
+        min-height: 56px;
+      }
+      .btn-yes {
+        background: rgba(45, 80, 22, 0.07);
+        color: var(--green);
+        border: 2px solid rgba(45, 80, 22, 0.18);
+      }
+      .btn-yes:hover {
+        background: rgba(45, 80, 22, 0.14);
+        border-color: var(--green);
+      }
+      .btn-no {
+        background: rgba(212, 168, 67, 0.1);
+        color: #7a5b10;
+        border: 2px solid rgba(212, 168, 67, 0.28);
+      }
+      .btn-no:hover {
+        background: rgba(212, 168, 67, 0.2);
+        border-color: var(--gold);
+      }
+
+      /* Quiz results */
+      .qr-score {
+        text-align: center;
+        margin-bottom: 28px;
+      }
+      .qr-big {
+        font-family: "DM Serif Display", serif;
+        font-size: clamp(52px, 14vw, 76px);
+        color: var(--green);
+        line-height: 1;
+      }
+      .qr-big span {
+        font-size: 0.55em;
+        color: var(--muted);
+      }
+      .qr-sublabel {
+        font-size: 14px;
+        color: var(--muted);
+        font-weight: 500;
+        margin-top: 4px;
+      }
+      .qr-msg {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text);
+        margin: 16px 0 8px;
+        line-height: 1.4;
+      }
+      .qr-insight {
+        font-size: 14px;
+        color: var(--muted);
+        line-height: 1.6;
+        margin-bottom: 26px;
+      }
+
+      .qr-answers {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        margin-bottom: 26px;
+      }
+      .qr-item {
+        background: var(--bg);
+        border-radius: var(--r-sm);
+        padding: 13px 15px;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .qr-icon {
+        font-size: 16px;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+      .qr-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 2px;
+      }
+      .qr-your {
+        font-size: 11px;
+        color: var(--light);
+        margin-bottom: 4px;
+      }
+      .qr-explain {
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      /* ══════════════════════════════════════════
+       SECTION 5 — TIPS
+    ══════════════════════════════════════════ */
+      #tips {
+        padding: 88px 0;
+        background: var(--bg);
+      }
+      #tips h2 {
+        font-size: clamp(30px, 7.5vw, 52px);
+        color: var(--green);
+        margin-bottom: 12px;
+      }
+
+      .tip-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .tip-card {
+        background: var(--card);
+        border-radius: var(--r);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        transition: box-shadow 0.25s var(--ease);
+      }
+      .tip-card:hover {
+        box-shadow: var(--shadow-lg);
+      }
+      .tip-head {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px 22px;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+      }
+      .tip-emoji {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+      .te1 {
+        background: rgba(139, 158, 58, 0.12);
+      }
+      .te2 {
+        background: rgba(45, 80, 22, 0.08);
+      }
+      .te3 {
+        background: rgba(212, 168, 67, 0.12);
+      }
+      .tip-title {
+        flex: 1;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text);
+        line-height: 1.3;
+      }
+      .tip-chevron {
+        width: 22px;
+        height: 22px;
+        flex-shrink: 0;
+        color: var(--light);
+        transition: transform 0.3s var(--ease);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .tip-card.open .tip-chevron {
+        transform: rotate(180deg);
+      }
+      .tip-body {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s var(--ease);
+      }
+      .tip-card.open .tip-body {
+        max-height: 260px;
+      }
+      .tip-content {
+        padding: 0 22px 22px 81px;
+        font-size: 14px;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+      .tip-content strong {
+        color: var(--text);
+      }
+
+      /* ══════════════════════════════════════════
+       SECTION 6 — FOOTER
+    ══════════════════════════════════════════ */
+      #footer {
+        background: var(--green);
+        color: var(--white);
+        padding: 80px 0 52px;
+      }
+      .footer-big {
+        font-family: "DM Serif Display", serif;
+        font-size: clamp(60px, 18vw, 104px);
+        color: var(--gold);
+        line-height: 1;
+        margin: 10px 0;
+        letter-spacing: -0.025em;
+      }
+      .footer-unit {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--gold-light);
+        margin-bottom: 16px;
+      }
+      .footer-text {
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.75);
+        line-height: 1.7;
+        max-width: 480px;
+        margin-bottom: 36px;
+      }
+      .footer-text strong {
+        color: var(--white);
+      }
+      .footer-btns {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 44px;
+      }
+      @media (min-width: 500px) {
+        .footer-btns {
+          flex-direction: row;
+        }
+      }
+      .footer-hr {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        margin: 0 0 28px;
+      }
+      .footer-credit {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.38);
+        line-height: 1.7;
+      }
+      .footer-credit a {
+        color: rgba(255, 255, 255, 0.55);
+        text-decoration: none;
+      }
+      .footer-credit a:hover {
+        color: rgba(255, 255, 255, 0.85);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+    <section id="hero">
+      <div class="hero-orb" aria-hidden="true">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="orb-core">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
+              fill="white"
+              stroke="white"
+              stroke-width=".5"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="pill">Using AI Sustainably</div>
+      <h1 class="hero-title">How Much Energy?</h1>
+      <p class="hero-sub">An interactive look inside the hidden cost of AI.</p>
+
+      <div class="scroll-hint" aria-label="Scroll to begin">
+        Scroll to begin
+        <div class="scroll-arrow">↓</div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ MATH CHALLENGE ═══════════════════════════ -->
+    <section id="math">
+      <div class="wrap">
+        <div class="fade">
+          <div class="pill">Compete</div>
+        </div>
+
+        <div class="game-box fade d1">
+          <!-- ── INTRO STATE ── -->
+          <div class="game-state on" id="s-intro">
+            <h2 class="intro-title">Human vs. AI</h2>
+            <p class="intro-desc">
+              Solve 5 trivial math problems as fast as you can. After, see how
+              your energy usage compares to AI.
+            </p>
+            <div class="q-dots" aria-hidden="true">
+              <div class="q-dot"></div>
+              <div class="q-dot"></div>
+              <div class="q-dot"></div>
+              <div class="q-dot"></div>
+              <div class="q-dot"></div>
+            </div>
+            <button class="btn btn-green" onclick="mathStart()">
+              Start the Challenge →
+            </button>
+          </div>
+
+          <!-- ── QUESTION STATE ── -->
+          <div class="game-state" id="s-question">
+            <div class="q-header">
+              <span class="q-num" id="qNum">Question 1 of 5</span>
+              <span class="q-timer" id="qTimer">0.0s</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="qProg"></div>
+            </div>
+            <div class="q-equation" id="qEq" aria-live="polite">12 × 8</div>
+            <input
+              type="number"
+              inputmode="numeric"
+              pattern="[0-9\-]*"
+              class="q-input"
+              id="qInput"
+              placeholder="Your answer"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              onkeydown="mathKey(event)"
+              aria-label="Your answer"
+            />
+            <div class="q-hint" id="qHint" aria-live="polite">
+              Type your answer and press Enter
+            </div>
+            <div style="margin-top: 22px">
+              <button class="btn btn-green btn-full" onclick="mathSubmit()">
+                Submit →
+              </button>
+            </div>
+          </div>
+
+          <!-- ── RESULTS STATE ── -->
+          <div class="game-state" id="s-results">
+            <div class="res-header">
+              <div class="pill">Your result</div>
+              <div class="res-time" id="resTime">0.0s</div>
+              <div class="res-time-label">Total time for 5 problems</div>
+              <p class="res-score" id="resScore">You got 5/5 correct!</p>
+            </div>
+
+            <div class="energy-viz">
+              <div class="viz-label">Energy comparison</div>
+              <div class="bar-row">
+                <div class="bar-top">
+                  <span class="bar-name">🧠 Your brain</span>
+                  <span class="bar-value">~0.5 calories</span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill brain" id="barBrain"></div>
+                </div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-top">
+                  <span class="bar-name">🤖 AI (5 queries)</span>
+                  <span class="bar-value">~0.005 kWh ≈ 4.3 cal</span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill ai" id="barAI"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="insight-block">
+              It took you <strong id="insightTime">0s</strong> to solve 5 math
+              problems. Your brain accomplished this using about
+              <strong>0.5 calories</strong> (a single peanut has 5 calories).
+              For an AI to answer these questions, it would use enough energy to
+              keep an <strong>LED light on for over 10 minutes</strong>.
+            </div>
+
+            <div class="res-actions">
+              <button
+                class="btn btn-gold"
+                onclick="mathShare()"
+                style="flex: 1"
+              >
+                Share Your Time
+              </button>
+              <button
+                class="btn btn-outline"
+                onclick="mathReset()"
+                style="flex: 1"
+              >
+                Try Again
+              </button>
+            </div>
+
+            <div class="share-preview" id="sharePreview"></div>
+          </div>
+        </div>
+        <!-- /game-box -->
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ WHY THIS MATTERS ═══════════════════════════ -->
+    <section id="why">
+      <div class="wrap">
+        <div class="fade">
+          <div class="pill">The Real Cost</div>
+          <h2>Why This Matters</h2>
+          <p class="sec-intro">
+            Every query to an LLM (ChatGPT, Gemini, Claude) draws real power and
+            water at data centers.
+          </p>
+        </div>
+
+        <div class="facts">
+          <div class="fact-card fade d1">
+            <div class="fact-icon-wrap">
+              <!-- Lightning bolt -->
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
+                  fill="none"
+                  stroke="#D4A843"
+                  stroke-width="1.8"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <div>
+              <div class="fact-num">10×</div>
+              <div class="fact-body">
+                One ChatGPT query uses about
+                <strong>10 times the energy</strong>
+                of a standard Google search. This gap is only widening as LLMs
+                become more capable.
+              </div>
+            </div>
+          </div>
+
+          <div class="fact-card fade d2">
+            <div class="fact-icon-wrap">
+              <!-- Water drop -->
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 3C12 3 5.5 10.5 5.5 14.5a6.5 6.5 0 0013 0C18.5 10.5 12 3 12 3z"
+                  stroke="#8B9E3A"
+                  stroke-width="1.8"
+                  stroke-linejoin="round"
+                  fill="none"
+                />
+              </svg>
+            </div>
+            <div>
+              <div class="fact-num">500ml</div>
+              <div class="fact-body">
+                A quick conversation with an LLM can use
+                <strong>a full water bottle</strong> worth of water, just for
+                data center cooling.
+              </div>
+            </div>
+          </div>
+
+          <div class="fact-card fade d3">
+            <div class="fact-icon-wrap">
+              <!-- Brain -->
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M9 2.5a2.5 2.5 0 00-2.3 1.5C5 4.5 4 6 4 7.5c0 .8.2 1.5.6 2.1A3.5 3.5 0 004 12.5a3.5 3.5 0 002.3 3.3C6.1 16.4 6 17 6 17.5A3.5 3.5 0 009.5 21h5a3.5 3.5 0 003.5-3.5c0-.5-.1-1.1-.3-1.7A3.5 3.5 0 0020 12.5a3.5 3.5 0 00-.6-2A4 4 0 0020 7.5C20 6 19 4.5 17.3 4a2.5 2.5 0 00-2.3-1.5H9z"
+                  stroke="#2D5016"
+                  stroke-width="1.7"
+                  fill="none"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <div>
+              <div class="fact-head">Your brain needs to grow</div>
+              <div class="fact-body">
+                Offloading work to AI skips the friction that results in genuine
+                learning and growth. Becoming too dependent on AI harms critical
+                thinking, problem solving, and
+                <strong>your own cognitive growth</strong>.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ AI OR NOT QUIZ ═══════════════════════════ -->
+    <section id="quiz">
+      <div class="wrap">
+        <div class="fade">
+          <div class="pill">Using AI</div>
+          <h2>AI or Not?</h2>
+          <p class="sec-intro">
+            Determine if the following digital actions use AI or not.
+          </p>
+        </div>
+
+        <div class="quiz-box fade d1">
+          <!-- Question area -->
+          <div id="qArea">
+            <div class="quiz-dots" id="qDots"></div>
+            <div class="q-num-label" id="qQLbl">Question 1 of 6</div>
+            <div class="q-action" id="qAction"></div>
+            <div class="q-context" id="qCtx"></div>
+            <div class="quiz-btns">
+              <button class="btn btn-ai btn-yes" onclick="quizAnswer(true)">
+                🤖 Uses AI
+              </button>
+              <button class="btn btn-ai btn-no" onclick="quizAnswer(false)">
+                📡 Doesn't Use AI
+              </button>
+            </div>
+          </div>
+
+          <!-- Results area -->
+          <div id="qResults" style="display: none">
+            <div class="qr-score">
+              <div class="qr-big">
+                <span id="qScoreVal">0</span><span>/6</span>
+              </div>
+              <div class="qr-sublabel">correct</div>
+              <div class="qr-msg" id="qMsg"></div>
+              <div class="qr-insight">
+                Every single one of those digital actions use AI. Many people
+                are interacting with these systems whether they realize it or
+                not. ChatGPT is just the tip of the iceberg.
+              </div>
+            </div>
+            <div class="qr-answers" id="qAnswerList"></div>
+            <button class="btn btn-green btn-full" onclick="quizReset()">
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ TIPS ═══════════════════════════ -->
+    <section id="tips">
+      <div class="wrap">
+        <div class="fade">
+          <div class="pill">Your Turn</div>
+          <h2>What You Can Do</h2>
+          <p class="sec-intro">
+            Quitting AI isn't the solution, using it with intentionality is.
+          </p>
+        </div>
+
+        <div class="tip-list fade d1">
+          <div
+            class="tip-card"
+            onclick="tipToggle(this)"
+            role="button"
+            tabindex="0"
+            onkeydown="
+              if (event.key === 'Enter' || event.key === ' ') tipToggle(this);
+            "
+          >
+            <div class="tip-head">
+              <div class="tip-emoji te1">🔍</div>
+              <div class="tip-title">Search smarter</div>
+              <div class="tip-chevron">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
+                  <path d="M8 11L2 5l1-1 5 5 5-5 1 1z" />
+                </svg>
+              </div>
+            </div>
+            <div class="tip-body">
+              <div class="tip-content">
+                Add <strong>-ai</strong> to simple Google searches. Not every
+                Google search needs an AI overview. As mentioned previously,
+                using <strong>-ai</strong> uses 1/10 of the energy.
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="tip-card"
+            onclick="tipToggle(this)"
+            role="button"
+            tabindex="0"
+            onkeydown="
+              if (event.key === 'Enter' || event.key === ' ') tipToggle(this);
+            "
+          >
+            <div class="tip-head">
+              <div class="tip-emoji te2">🧠</div>
+              <div class="tip-title">
+                Use AI as a second pass, not a first instinct
+              </div>
+              <div class="tip-chevron">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
+                  <path d="M8 11L2 5l1-1 5 5 5-5 1 1z" />
+                </svg>
+              </div>
+            </div>
+            <div class="tip-body">
+              <div class="tip-content">
+                Try thinking through problems by yourself first. This is how you
+                actually learn. Instead use AI to check your work or get
+                yourself unstuck.
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="tip-card"
+            onclick="tipToggle(this)"
+            role="button"
+            tabindex="0"
+            onkeydown="
+              if (event.key === 'Enter' || event.key === ' ') tipToggle(this);
+            "
+          >
+            <div class="tip-head">
+              <div class="tip-emoji te3">📊</div>
+              <div class="tip-title">Track dependency</div>
+              <div class="tip-chevron">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
+                  <path d="M8 11L2 5l1-1 5 5 5-5 1 1z" />
+                </svg>
+              </div>
+            </div>
+            <div class="tip-body">
+              <div class="tip-content">
+                Be very mindful about how much you are using AI tools. Is this
+                how much you want to be using them? Becoming dependent on these
+                AI tools might help you in the short run but will
+                <strong>only harm you in the long run</strong>.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+    <footer id="footer">
+      <div class="wrap">
+        <div class="fade">
+          <div class="pill pill-gold">The Big Picture</div>
+          <div class="footer-big">9,490</div>
+          <div class="footer-unit">kWh saved per year</div>
+          <p class="footer-text">
+            If every UCSB student cut just
+            <strong>one unnecessary AI query per day</strong>, it would save
+            9,400 kWh per year. That's enough to power
+            <strong>10 homes for an entire month</strong>. Small habits when
+            scaled can add up fast.
+          </p>
+        </div>
+
+        <div class="footer-btns fade d1">
+          <button class="btn btn-white" onclick="footerShare()">
+            Share This Page
+          </button>
+          <button
+            class="btn btn-ghost-white"
+            onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+          >
+            Back to Top ↑
+          </button>
+        </div>
+
+        <div class="footer-hr"></div>
+
+        <p class="footer-credit fade">
+          Made for students at UCSB · Energy figures are approximations based on
+          published research estimates.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      /* ─────────────────────────────────────────────
+   INTERSECTION OBSERVER — fade-in on scroll
+───────────────────────────────────────────── */
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("visible");
+              io.unobserve(e.target);
+            }
+          });
+        },
+        { threshold: 0.08, rootMargin: "0px 0px -32px 0px" },
+      );
+      document.querySelectorAll(".fade").forEach((el) => io.observe(el));
+
+      /* ─────────────────────────────────────────────
+   TOAST
+───────────────────────────────────────────── */
+      function toast(msg, ms = 2800) {
+        const el = document.getElementById("toast");
+        el.textContent = msg;
+        el.classList.add("show");
+        setTimeout(() => el.classList.remove("show"), ms);
+      }
+      function copyText(t) {
+        if (navigator.clipboard) {
+          navigator.clipboard
+            .writeText(t)
+            .then(() => toast("Copied to clipboard! 📋"))
+            .catch(() => fallbackCopy(t));
+        } else {
+          fallbackCopy(t);
+        }
+      }
+      function fallbackCopy(t) {
+        const ta = document.createElement("textarea");
+        ta.value = t;
+        ta.style.cssText = "position:fixed;opacity:0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        toast("Copied to clipboard! 📋");
+      }
+
+      /* ─────────────────────────────────────────────
+   MATH GAME
+───────────────────────────────────────────── */
+      const QS = [
+        { q: "12 × 2", a: 24 },
+        { q: "145 + 13", a: 158 },
+        { q: "25 × 4", a: 100 },
+        { q: "83 − 20", a: 63 },
+        { q: "9 × 1", a: 9 },
+      ];
+
+      let mg = { i: 0, t0: 0, correct: 0, total: 0, raf: null, interval: null };
+
+      function mathShow(id) {
+        document
+          .querySelectorAll(".game-state")
+          .forEach((s) => s.classList.remove("on"));
+        document.getElementById(id).classList.add("on");
+      }
+      function mathStart() {
+        mg = {
+          i: 0,
+          t0: performance.now(),
+          correct: 0,
+          total: 0,
+          raf: null,
+          interval: null,
+        };
+        mathShow("s-question");
+        mathRender();
+        mg.interval = setInterval(() => {
+          const s = ((performance.now() - mg.t0) / 1000).toFixed(1);
+          document.getElementById("qTimer").textContent = s + "s";
+        }, 100);
+      }
+      function mathRender() {
+        const q = QS[mg.i];
+        document.getElementById("qNum").textContent =
+          `Question ${mg.i + 1} of 5`;
+        document.getElementById("qEq").textContent = q.q;
+        document.getElementById("qProg").style.width = (mg.i / 5) * 100 + "%";
+        document.getElementById("qHint").textContent =
+          "Type your answer and press Enter";
+        const inp = document.getElementById("qInput");
+        inp.value = "";
+        inp.className = "q-input";
+        inp.disabled = false;
+        if (window.innerWidth >= 640) inp.focus();
+      }
+      function mathKey(e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          mathSubmit();
+        }
+      }
+      function mathSubmit() {
+        const inp = document.getElementById("qInput");
+        const val = parseInt(inp.value, 10);
+        if (isNaN(val)) {
+          inp.style.borderColor = "var(--gold)";
+          document.getElementById("qHint").textContent =
+            "Please enter a number first!";
+          return;
+        }
+        const correct = val === QS[mg.i].a;
+        inp.classList.add(correct ? "ok" : "err");
+        inp.disabled = true;
+        if (correct) {
+          mg.correct++;
+          document.getElementById("qHint").textContent = "✓ Correct!";
+        } else {
+          document.getElementById("qHint").textContent =
+            `The answer was ${QS[mg.i].a}`;
+        }
+        mg.i++;
+        setTimeout(() => {
+          if (mg.i >= QS.length) {
+            mathFinish();
+          } else {
+            mathRender();
+          }
+        }, 750);
+      }
+      function mathFinish() {
+        clearInterval(mg.interval);
+        mg.total = (performance.now() - mg.t0) / 1000;
+        const ts = mg.total.toFixed(1);
+        mathShow("s-results");
+        document.getElementById("resTime").textContent = ts + "s";
+        document.getElementById("insightTime").textContent = ts + "s";
+        document.getElementById("resScore").textContent =
+          `You got ${mg.correct}/5 correct${mg.correct === 5 ? " — nice work! 🎉" : "."}`;
+        document.getElementById("sharePreview").textContent =
+          `"I solved 5 math problems in ${ts}s using just 0.5 calories. How fast can you go? 🧠⚡"`;
+        // Animate bars
+        setTimeout(() => {
+          document.getElementById("barBrain").style.width = "11%";
+          document.getElementById("barAI").style.width = "92%";
+        }, 350);
+      }
+      function mathReset() {
+        document.getElementById("barBrain").style.width = "0%";
+        document.getElementById("barAI").style.width = "0%";
+        mathShow("s-intro");
+      }
+      async function mathShare() {
+        const ts = mg.total.toFixed(1);
+        const text = `I solved 5 math problems in ${ts}s using just 0.5 calories. How fast can you go? 🧠⚡ ${location.href}`;
+        if (navigator.share) {
+          try {
+            await navigator.share({ text });
+            return;
+          } catch (e) {
+            if (e.name === "AbortError") return;
+          }
+        }
+        copyText(text);
+      }
+
+      /* ─────────────────────────────────────────────
+   AI OR NOT QUIZ
+───────────────────────────────────────────── */
+      const QUIZ = [
+        {
+          action: "Google Maps suggests the fastest route",
+          ctx: "You open Maps and it instantly shows the best way home, accounting for live traffic.",
+          ai: true,
+          explain:
+            "Google Maps uses machine learning models to predict and analyze traffic flow. This is how they estimate arrival times and give route suggestions.",
+        },
+        {
+          action: "Spotify's Discover Weekly playlist",
+          ctx: "Every Monday a fresh playlist appears, weirdly perfect for your taste.",
+          ai: true,
+          explain:
+            "Spotify analyzes billions of songs using deep learning to predict what you might like next.",
+        },
+        {
+          action: "Google autocomplete finishes your search",
+          ctx: "You type three words and Google already knows the rest of your question.",
+          ai: true,
+          explain:
+            "Autocomplete uses LLMs and a bunch of prior query data to predict your searches in real time.",
+        },
+        {
+          action: "Instagram's Explore page",
+          ctx: "A grid of posts you never followed appears, curated for you.",
+          ai: true,
+          explain:
+            "Instagram's explore page uses deep learning recommendation algorithms designed to maximize your engagement and time on the platform.",
+        },
+        {
+          action: "Grammarly checks your essay",
+          ctx: "You paste a draft and suggestions appear: tone, clarity, grammar, all flagged.",
+          ai: true,
+          explain:
+            "Grammarly uses NLP models (a form of machine learning) to understand context and grammar rules.",
+        },
+        {
+          action: "Gmail sorts your inbox into tabs",
+          ctx: "Emails automatically land in Primary, Promotions, or Social, no setup needed.",
+          ai: true,
+          explain:
+            "Gmail uses machine learning classifiers to sort emails into different categories based on tons of past data.",
+        },
+      ];
+
+      let qz = { i: 0, score: 0, answers: [] };
+
+      function quizInit() {
+        qz = { i: 0, score: 0, answers: [] };
+        document.getElementById("qArea").style.display = "block";
+        document.getElementById("qResults").style.display = "none";
+        quizDots();
+        quizRender();
+      }
+      function quizDots() {
+        document.getElementById("qDots").innerHTML = QUIZ.map(
+          (_, i) =>
+            `<div class="qd ${i < qz.i ? "done" : i === qz.i ? "current" : ""}"></div>`,
+        ).join("");
+      }
+      function quizRender() {
+        const q = QUIZ[qz.i];
+        document.getElementById("qQLbl").textContent =
+          `Question ${qz.i + 1} of ${QUIZ.length}`;
+        document.getElementById("qAction").textContent = q.action;
+        document.getElementById("qCtx").textContent = q.ctx;
+        document.querySelectorAll(".btn-ai").forEach((b) => {
+          b.disabled = false;
+          b.style.opacity = "1";
+        });
+      }
+      function quizAnswer(userSaysAI) {
+        const q = QUIZ[qz.i];
+        const ok = userSaysAI === q.ai;
+        qz.answers.push({ ...q, userSaid: userSaysAI, ok });
+        if (ok) qz.score++;
+        document.querySelectorAll(".btn-ai").forEach((b) => {
+          b.disabled = true;
+          b.style.opacity = ".55";
+        });
+        qz.i++;
+        quizDots();
+        if (qz.i >= QUIZ.length) {
+          setTimeout(quizResults, 420);
+        } else {
+          setTimeout(quizRender, 420);
+        }
+      }
+      function quizResults() {
+        document.getElementById("qArea").style.display = "none";
+        document.getElementById("qResults").style.display = "block";
+
+        // Count-up score
+        let c = 0,
+          tgt = qz.score;
+        const el = document.getElementById("qScoreVal");
+        el.textContent = "0";
+        if (tgt > 0) {
+          const iv = setInterval(() => {
+            el.textContent = ++c;
+            if (c >= tgt) clearInterval(iv);
+          }, 140);
+        }
+
+        const msgs = [
+          "Surprising, right? AI is everywhere.",
+          "1 of 6 — AI hides in plain sight.",
+          "Not bad — there's more lurking than most people think.",
+          "Half right! The others are sneakier than they look.",
+          "Almost! One more slipped past you.",
+          "Sharp eye — you caught 5 of 6.",
+          "Perfect! You've got a keen eye for AI. 🎯",
+        ];
+        document.getElementById("qMsg").textContent = msgs[qz.score] || msgs[6];
+
+        document.getElementById("qAnswerList").innerHTML = qz.answers
+          .map(
+            (a) => `
+    <div class="qr-item">
+      <div class="qr-icon">${a.ok ? "✅" : "❌"}</div>
+      <div>
+        <div class="qr-title">${a.action}</div>
+        <div class="qr-your">You said: ${a.userSaid ? "Uses AI" : "Doesn't use AI"} · Correct: Uses AI</div>
+        <div class="qr-explain">${a.explain}</div>
+      </div>
+    </div>
+  `,
+          )
+          .join("");
+      }
+      function quizReset() {
+        quizInit();
+      }
+
+      // Boot quiz
+      quizInit();
+
+      /* ─────────────────────────────────────────────
+   TIP CARDS
+───────────────────────────────────────────── */
+      function tipToggle(card) {
+        const open = card.classList.contains("open");
+        document
+          .querySelectorAll(".tip-card")
+          .forEach((c) => c.classList.remove("open"));
+        if (!open) card.classList.add("open");
+      }
+
+      /* ─────────────────────────────────────────────
+   FOOTER SHARE
+───────────────────────────────────────────── */
+      async function footerShare() {
+        const text = "Check out this interactive page on AI sustainability 🌱";
+        const url = location.href;
+        if (navigator.share) {
+          try {
+            await navigator.share({ title: "How Much Energy?", text, url });
+            return;
+          } catch (e) {
+            if (e.name === "AbortError") return;
+          }
+        }
+        copyText(text + " " + url);
+      }
+    </script>
+  </body>
+</html>
